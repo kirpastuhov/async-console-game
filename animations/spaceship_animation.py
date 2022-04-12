@@ -15,19 +15,9 @@ async def animate_spaceship(canvas, row, column, frames):
         await asyncio.sleep(0)
         draw_frame(canvas, row, column, frame, negative=True)
 
-        canvas.nodelay(True)
         x_direction, y_direction, _ = read_controls(canvas)
         row = row + x_direction
         column = column + y_direction
 
-        if row >= max_row:
-            row = max_row
-
-        elif row <= frame_row:
-            row = 0
-
-        if column >= max_column:
-            column = max_column
-
-        elif column <= frame_column:
-            column = 0
+        row = min(max(1, row), max_row)
+        column = min(max(1, column), max_column)

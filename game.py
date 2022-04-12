@@ -3,8 +3,10 @@ import asyncio
 import curses
 import random
 
-from animations.fire_animation import fire
 from animations.spaceship_animation import animate_spaceship
+
+TIC_TIMEOUT = 0.1
+STAR_SYMBOLS = ["+", "*", ".", ":"]
 
 
 async def blink(canvas, row, column, symbol="*"):
@@ -31,15 +33,11 @@ async def blink(canvas, row, column, symbol="*"):
 
 
 def get_coordinates(max_y, max_x):
-    new_y = random.randint(0, max_y - 3)
-    new_x = random.randint(0, max_x - 3)
+    offset = 3
+    new_y = random.randint(0, max_y - offset)
+    new_x = random.randint(0, max_x - offset)
 
     return new_y, new_x
-
-
-def get_star_symbol():
-    i = random.randint(0, len(STAR_SYMBOLS))
-    return STAR_SYMBOLS[i - 1]
 
 
 def generate_stars(canvas):
@@ -47,7 +45,7 @@ def generate_stars(canvas):
     max_row, max_column = rows - 1, columns - 1
     coroutines = []
     for _ in range(250):
-        symbol = get_star_symbol()
+        symbol = random.choice(STAR_SYMBOLS)
         row, column = get_coordinates(max_row, max_column)
         star = blink(canvas, row, column, symbol)
         coroutines.append(star)
@@ -56,6 +54,7 @@ def generate_stars(canvas):
 
 
 def draw(canvas):
+    canvas.nodelay(True)
     rows, columns = canvas.getmaxyx()
 
     frames = []
@@ -63,9 +62,6 @@ def draw(canvas):
         frames.append(f.read())
     with open("animations/frames/rocket_frame_2.txt", "r") as f:
         frames.append(f.read())
-
-    # fire_animation = fire(canvas, MAX_Y / 2, MAX_X / 2)
-    # coroutines = [fire_animation]
 
     spaceship_animation = animate_spaceship(canvas, rows / 2, columns / 2, frames)
     coroutines = [spaceship_animation]
@@ -82,7 +78,5 @@ def draw(canvas):
 
 
 if __name__ == "__main__":
-    TIC_TIMEOUT = 0.1
-    STAR_SYMBOLS = ["+", "*", ".", ":"]
     curses.update_lines_cols()
     curses.wrapper(draw)

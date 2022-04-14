@@ -4,14 +4,13 @@ from itertools import cycle
 
 
 async def animate_spaceship(canvas, row, column, frames):
-    rows, columns = canvas.getmaxyx()
+    max_y, max_x = canvas.getmaxyx()
 
     for frame in cycle(frames):
         frame_row, frame_column = get_frame_size(frame)
-        max_row, max_column = rows - frame_row, columns - frame_column
+        max_row, max_column = max_y - frame_row, max_x - frame_column
 
         draw_frame(canvas, row, column, frame)
-        await asyncio.sleep(0)
         await asyncio.sleep(0)
         draw_frame(canvas, row, column, frame, negative=True)
 

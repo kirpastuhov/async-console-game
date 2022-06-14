@@ -1,12 +1,16 @@
+import os
 import time
-import asyncio
 import curses
 import random
 
-from animations.spaceship_animation import animate_spaceship
+from loguru import logger
 
-TIC_TIMEOUT = 0.1
-STAR_SYMBOLS = ["+", "*", ".", ":"]
+from animations import space_garbage, spaceship_animation
+import game_scenario
+import settings
+
+from utils.sleep import sleep
+from utils import year_tools
 
 
 async def blink(canvas, row, column, symbol="*"):
@@ -15,20 +19,42 @@ async def blink(canvas, row, column, symbol="*"):
         star_state_time = random.randint(3, 20)
 
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        for _ in range(star_state_time):
-            await asyncio.sleep(0)
+        await sleep(star_state_time)
 
         canvas.addstr(row, column, symbol)
-        for _ in range(star_state_time):
-            await asyncio.sleep(0)
+        await sleep(star_state_time)
 
         canvas.addstr(row, column, symbol, curses.A_BOLD)
-        for _ in range(star_state_time):
-            await asyncio.sleep(0)
+        await sleep(star_state_time)
 
         canvas.addstr(row, column, symbol)
-        for _ in range(star_state_time):
-            await asyncio.sleep(0)
+        await sleep(star_state_time)
+
+
+def get_garbage_frames():
+    filenames = ["trash_xl.txt", "trash_small.txt", "trash_large.txt", "duck.txt", "hubble.txt", "lamp.txt"]
+    frames_path = "animations/frames/"
+    frames = []
+    for filename in filenames:
+        with open(os.path.join(frames_path, filename), "r") as garbage_file:
+            frames.append(garbage_file.read())
+    return frames
+
+
+async def fill_orbit_with_garbage(canvas):
+    frames = get_garbage_frames()
+    _, max_x = canvas.getmaxyx()
+    while True:
+        random_column = random.randint(1, max_x)
+        settings.coroutines.append(
+            space_garbage.fly_garbage(
+                canvas,
+                column=random_column,
+                garbage_frame=random.choice(frames),
+            )
+        )
+
+        await sleep(game_scenario.get_garbage_delay_tics(settings.year) or 1)
 
 
 def get_star_coordinates(max_y, max_x):
@@ -42,14 +68,13 @@ def get_star_coordinates(max_y, max_x):
 def generate_stars(canvas):
     max_y, max_x = canvas.getmaxyx()
     max_row, max_column = max_y - 1, max_x - 1
-    coroutines = []
-    for _ in range(250):
-        symbol = random.choice(STAR_SYMBOLS)
+    for _ in range(100):
+        symbol = random.choice(settings.star_symbols)
         row, column = get_star_coordinates(max_row, max_column)
         star = blink(canvas, row, column, symbol)
-        coroutines.append(star)
+        settings.coroutines.append(star)
 
-    return coroutines
+    return settings.coroutines
 
 
 def draw(canvas):
@@ -64,21 +89,31 @@ def draw(canvas):
         frame = f.read()
         frames.extend([frame, frame])
 
-    spaceship_animation = animate_spaceship(canvas, max_y / 2, max_x / 2, frames)
-    coroutines = [spaceship_animation]
-    coroutines.extend(generate_stars(canvas))
+    ship_animation = spaceship_animation.animate_spaceship(canvas, max_y / 2, max_x / 2, frames)
+    settings.coroutines.append(ship_animation)
+
+    years = year_tools.increment_year(canvas)
+    settings.coroutines.append(years)
+
+    settings.coroutines.extend(generate_stars(canvas))
+
+    garbage = fill_orbit_with_garbage(canvas)
+    settings.coroutines.append(garbage)
 
     while True:
         canvas.border()
-        for coroutine in coroutines.copy():
+        for coroutine in settings.coroutines.copy():
             try:
                 coroutine.send(None)
             except StopIteration:
-                coroutines.remove(coroutine)
+                settings.coroutines.remove(coroutine)
         canvas.refresh()
-        time.sleep(TIC_TIMEOUT)
+        time.sleep(settings.tic_timeout)
 
 
 if __name__ == "__main__":
+    logger.remove(0)
+    logger.add("example.log")
+    settings.init()
     curses.update_lines_cols()
     curses.wrapper(draw)

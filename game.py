@@ -5,29 +5,10 @@ import time
 
 from loguru import logger
 
-import game_scenario
 import settings
 from animations import space_garbage, spaceship_animation
-from utils import year_tools
+from utils import game_scenario, stars_tools, year_tools
 from utils.sleep import sleep
-
-
-async def blink(canvas, row, column, symbol="*"):
-    while True:
-        curses.curs_set(False)
-        star_state_time = random.randint(3, 20)
-
-        canvas.addstr(row, column, symbol, curses.A_DIM)
-        await sleep(star_state_time)
-
-        canvas.addstr(row, column, symbol)
-        await sleep(star_state_time)
-
-        canvas.addstr(row, column, symbol, curses.A_BOLD)
-        await sleep(star_state_time)
-
-        canvas.addstr(row, column, symbol)
-        await sleep(star_state_time)
 
 
 def get_garbage_frames():
@@ -56,26 +37,6 @@ async def fill_orbit_with_garbage(canvas):
         await sleep(game_scenario.get_garbage_delay_tics(settings.year) or 1)
 
 
-def get_star_coordinates(max_y, max_x):
-    offset = 1
-    new_y = random.randint(1, max_y - offset)
-    new_x = random.randint(1, max_x - offset)
-
-    return new_y, new_x
-
-
-def generate_stars(canvas):
-    max_y, max_x = canvas.getmaxyx()
-    max_row, max_column = max_y - 1, max_x - 1
-    for _ in range(100):
-        symbol = random.choice(settings.star_symbols)
-        row, column = get_star_coordinates(max_row, max_column)
-        star = blink(canvas, row, column, symbol)
-        settings.coroutines.append(star)
-
-    return settings.coroutines
-
-
 def draw(canvas):
     canvas.nodelay(True)
     max_y, max_x = canvas.getmaxyx()
@@ -94,7 +55,7 @@ def draw(canvas):
     years = year_tools.increment_year(canvas)
     settings.coroutines.append(years)
 
-    settings.coroutines.extend(generate_stars(canvas))
+    settings.coroutines.extend(stars_tools.generate_stars(canvas))
 
     garbage = fill_orbit_with_garbage(canvas)
     settings.coroutines.append(garbage)

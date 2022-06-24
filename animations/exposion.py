@@ -1,4 +1,3 @@
-import asyncio
 import curses
 
 from utils.sleep import sleep

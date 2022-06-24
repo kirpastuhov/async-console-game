@@ -1,9 +1,9 @@
 from itertools import cycle
 
-from animations import curses_tools, fire_animation, physics, game_over
-
-from utils.sleep import sleep
 import settings
+from utils.sleep import sleep
+
+from animations import curses_tools, fire_animation, game_over, physics
 
 
 async def animate_spaceship(canvas, row, column, frames):

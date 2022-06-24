@@ -1,7 +1,7 @@
 import logging
 
-import obstacle
 import settings
+from utils import obstacle
 from utils.sleep import sleep
 
 from animations import curses_tools, exposion

@@ -1,7 +1,8 @@
-import asyncio
 import curses
+
 import settings
 from loguru import logger
+from utils.sleep import sleep
 
 
 async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0):
@@ -14,10 +15,10 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
     row, column = start_row, start_column
 
     canvas.addstr(round(row), round(column), "*")
-    await asyncio.sleep(0)
+    await sleep()
 
     canvas.addstr(round(row), round(column), "O")
-    await asyncio.sleep(0)
+    await sleep()
     canvas.addstr(round(row), round(column), " ")
 
     row += rows_speed
@@ -37,7 +38,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
                 logger.info(f"obstacles in last collisions {settings.obstacles_in_last_collisions}")
                 return
         canvas.addstr(round(row), round(column), symbol)
-        await asyncio.sleep(0)
+        await sleep()
         canvas.addstr(round(row), round(column), " ")
         row += rows_speed
         column += columns_speed

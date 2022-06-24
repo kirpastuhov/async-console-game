@@ -1,16 +1,15 @@
-import os
-import time
 import curses
+import os
 import random
+import time
 
 from loguru import logger
 
-from animations import space_garbage, spaceship_animation
 import game_scenario
 import settings
-
-from utils.sleep import sleep
+from animations import space_garbage, spaceship_animation
 from utils import year_tools
+from utils.sleep import sleep
 
 
 async def blink(canvas, row, column, symbol="*"):
@@ -116,4 +115,7 @@ if __name__ == "__main__":
     logger.add("example.log")
     settings.init()
     curses.update_lines_cols()
-    curses.wrapper(draw)
+    try:
+        curses.wrapper(draw)
+    except KeyboardInterrupt:
+        print("EXIT")

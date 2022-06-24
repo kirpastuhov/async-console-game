@@ -1,7 +1,9 @@
 import asyncio
 import curses
-from animations import curses_tools
 
+from utils.sleep import sleep
+
+from animations import curses_tools
 
 # TODO: Move explosion frame into frames/
 
@@ -43,6 +45,6 @@ async def explode(canvas, center_row, center_column):
 
         curses_tools.draw_frame(canvas, corner_row, corner_column, frame)
 
-        await asyncio.sleep(0)
+        await sleep()
         curses_tools.draw_frame(canvas, corner_row, corner_column, frame, negative=True)
-        await asyncio.sleep(0)
+        await sleep()

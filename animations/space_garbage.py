@@ -1,11 +1,10 @@
-import asyncio
-
-from animations import curses_tools
-from animations import exposion
-import obstacle
-
 import logging
+
+import obstacle
 import settings
+from utils.sleep import sleep
+
+from animations import curses_tools, exposion
 
 logging.basicConfig(filename="example.log", level=logging.DEBUG)
 
@@ -31,7 +30,7 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
         ob = obstacle.Obstacle(row, column, frame_row, frame_col)
         settings.obstacles.append(ob)
 
-        await asyncio.sleep(0)
+        await sleep()
         curses_tools.draw_frame(canvas, row, column, garbage_frame, negative=True)
 
         if ob in settings.obstacles_in_last_collisions:

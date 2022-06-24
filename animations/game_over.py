@@ -1,4 +1,5 @@
-import asyncio
+from utils.sleep import sleep
+
 from animations import curses_tools
 
 
@@ -13,5 +14,5 @@ async def show_gameover(canvas):
 
     while True:
         curses_tools.draw_frame(canvas, row_mid, col_mid, frame)
-        await asyncio.sleep(0)
+        await sleep()
         curses_tools.draw_frame(canvas, row_mid, col_mid, frame, negative=True)

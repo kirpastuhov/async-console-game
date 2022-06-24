@@ -10,7 +10,8 @@ async def increment_year(canvas):
     while True:
         if settings.year in PHRASES:
             phrase = PHRASES.get(settings.year)
-        settings.year += 1
+        if not settings.game_over:
+            settings.year += 1
         curses_tools.draw_frame(canvas, 1, 5, f"{settings.year} | {phrase}")
         await sleep(15)
         curses_tools.draw_frame(canvas, 1, 5, f"{settings.year} | {phrase}", negative=True)

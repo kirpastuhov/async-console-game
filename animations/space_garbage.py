@@ -1,12 +1,8 @@
-import logging
-
 import settings
 from utils import obstacle
 from utils.sleep import sleep
 
 from animations import curses_tools, exposion
-
-logging.basicConfig(filename="example.log", level=logging.DEBUG)
 
 
 async def fly_garbage(canvas, column, garbage_frame, speed=0.5):

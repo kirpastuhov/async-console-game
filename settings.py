@@ -16,3 +16,6 @@ def init():
 
     global year
     year = 1957
+
+    global game_over
+    game_over = False

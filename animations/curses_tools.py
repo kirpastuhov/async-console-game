@@ -3,6 +3,7 @@ LEFT_KEY_CODE = 260
 RIGHT_KEY_CODE = 261
 UP_KEY_CODE = 259
 DOWN_KEY_CODE = 258
+Q_KEY_CODE = 113
 
 
 def read_controls(canvas):
@@ -32,6 +33,9 @@ def read_controls(canvas):
 
         if pressed_key_code == SPACE_KEY_CODE:
             space_pressed = True
+
+        if pressed_key_code == Q_KEY_CODE:
+            quit()
 
     return rows_direction, columns_direction, space_pressed
 
@@ -75,3 +79,8 @@ def get_frame_size(text):
     rows = len(lines)
     columns = max(len(line) for line in lines)
     return rows, columns
+
+
+def clear_and_refresh(canvas):
+    canvas.clear()
+    canvas.refresh()

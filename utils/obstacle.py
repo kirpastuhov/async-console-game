@@ -1,4 +1,5 @@
 from animations import curses_tools
+
 from utils.sleep import sleep
 
 

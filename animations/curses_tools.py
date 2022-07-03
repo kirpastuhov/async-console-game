@@ -1,3 +1,5 @@
+import curses
+
 SPACE_KEY_CODE = 32
 LEFT_KEY_CODE = 260
 RIGHT_KEY_CODE = 261
@@ -6,7 +8,7 @@ DOWN_KEY_CODE = 258
 Q_KEY_CODE = 113
 
 
-def read_controls(canvas):
+def read_controls(canvas: curses.window):
     """Read keys pressed and returns tuple witl controls state."""
 
     rows_direction = columns_direction = 0
@@ -40,7 +42,7 @@ def read_controls(canvas):
     return rows_direction, columns_direction, space_pressed
 
 
-def draw_frame(canvas, start_row, start_column, text, negative=False):
+def draw_frame(canvas: curses.window, start_row: int, start_column: int, text: str, negative=False):
     """Draw multiline text fragment on canvas, erase text instead of drawing if negative=True is specified."""
 
     rows_number, columns_number = canvas.getmaxyx()
@@ -72,7 +74,7 @@ def draw_frame(canvas, start_row, start_column, text, negative=False):
             canvas.addch(row, column, symbol)
 
 
-def get_frame_size(text):
+def get_frame_size(text: str):
     """Calculate size of multiline text fragment, return pair — number of rows and colums."""
 
     lines = text.splitlines()
@@ -81,6 +83,6 @@ def get_frame_size(text):
     return rows, columns
 
 
-def clear_and_refresh(canvas):
+def clear_and_refresh(canvas: curses.window):
     canvas.clear()
     canvas.refresh()

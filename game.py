@@ -1,52 +1,69 @@
 import curses
 import time
 
-import settings
-from animations import spaceship_animation
+import shared
+from animations import curses_tools, spaceship_animation
 from utils import garbage_tools, stars_tools, year_tools
 
 
-def draw(canvas):
+def read_frames() -> tuple[list[str], str]:
+    rocket_frames = []
+    with open("animations/frames/game_over.txt", "r") as game_over_file:
+        gameover_frame = game_over_file.read()
+
+    for frame_path in ["animations/frames/rocket_frame_1.txt", "animations/frames/rocket_frame_2.txt"]:
+        with open(frame_path, "r") as f:
+            frame = f.read()
+            rocket_frames.extend([frame, frame])
+
+    return rocket_frames, gameover_frame
+
+
+def draw(canvas: curses.window):
     canvas.nodelay(True)
     max_y, max_x = canvas.getmaxyx()
 
-    frames = []
-    with open("animations/frames/rocket_frame_1.txt", "r") as f:
-        frame = f.read()
-        frames.extend([frame, frame])
-    with open("animations/frames/rocket_frame_2.txt", "r") as f:
-        frame = f.read()
-        frames.extend([frame, frame])
+    rocket_frames, gameover_frame = read_frames()
 
-    ship_animation = spaceship_animation.animate_spaceship(canvas, max_y / 2, max_x / 2, frames)
-    settings.coroutines.append(ship_animation)
-
+    ship_animation = spaceship_animation.animate_spaceship(canvas, max_y / 2, max_x / 2, rocket_frames, gameover_frame)
     years = year_tools.increment_year(canvas)
-    settings.coroutines.append(years)
-
-    settings.coroutines.extend(stars_tools.generate_stars(canvas))
-
     garbage = garbage_tools.fill_orbit_with_garbage(canvas)
-    settings.coroutines.append(garbage)
+
+    for corotine in [ship_animation, years, garbage] + stars_tools.generate_stars(canvas):
+        shared.coroutines.append(corotine)
 
     while True:
         canvas.border()
-        for coroutine in settings.coroutines.copy():
+        for coroutine in shared.coroutines.copy():
             try:
                 coroutine.send(None)
             except StopIteration:
-                settings.coroutines.remove(coroutine)
+                shared.coroutines.remove(coroutine)
         canvas.refresh()
-        time.sleep(settings.tic_timeout)
+        time.sleep(shared.tic_timeout)
+
+        if shared.game_over:
+            _, _, space_pressed = curses_tools.read_controls(canvas)
+            if space_pressed:
+                curses_tools.clear_and_refresh(canvas)
+                reset_shared()
+                run_game()
 
 
 def run_game():
-    settings.init()
     curses.update_lines_cols()
     try:
         curses.wrapper(draw)
     except KeyboardInterrupt:
         print("EXIT")
+
+
+def reset_shared():
+    shared.year = 1957
+    shared.obstacles_in_last_collisions = []
+    shared.obstacles = []
+    shared.coroutines = []
+    shared.game_over = False
 
 
 if __name__ == "__main__":

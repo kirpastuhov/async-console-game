@@ -1,14 +1,16 @@
-import settings
+import curses
+
+import shared
 from utils import obstacle
 from utils.sleep import sleep
 
 from animations import curses_tools, exposion
 
 
-async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
+async def fly_garbage(canvas: curses.window, column: int, garbage_frame: str, speed=0.5):
     """Animate garbage, flying from top to bottom. Сolumn position will stay same, as specified on start."""
 
-    if settings.year <= 1961:
+    if shared.year <= 1961:
         return
 
     rows_number, columns_number = canvas.getmaxyx()
@@ -23,17 +25,17 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
 
         frame_row, frame_col = curses_tools.get_frame_size(garbage_frame)
 
-        ob = obstacle.Obstacle(row, column, frame_row, frame_col)
-        settings.obstacles.append(ob)
+        new_obstacle = obstacle.Obstacle(row, column, frame_row, frame_col)
+        shared.obstacles.append(new_obstacle)
 
         await sleep()
         curses_tools.draw_frame(canvas, row, column, garbage_frame, negative=True)
 
-        if ob in settings.obstacles_in_last_collisions:
-            settings.obstacles_in_last_collisions.remove(ob)
-            settings.obstacles.remove(ob)
+        if new_obstacle in shared.obstacles_in_last_collisions:
+            shared.obstacles_in_last_collisions.remove(new_obstacle)
+            shared.obstacles.remove(new_obstacle)
             await exposion.explode(canvas, row + frame_row / 2, column + frame_col / 2)
             return
 
-        settings.obstacles.remove(ob)
+        shared.obstacles.remove(new_obstacle)
         row += speed

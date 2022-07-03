@@ -1,7 +1,8 @@
+import curses
 import os
 import random
 
-import settings
+import shared
 from animations import space_garbage
 
 from utils import game_scenario, sleep
@@ -17,12 +18,12 @@ def get_garbage_frames():
     return frames
 
 
-async def fill_orbit_with_garbage(canvas):
+async def fill_orbit_with_garbage(canvas: curses.window):
     frames = get_garbage_frames()
     _, max_x = canvas.getmaxyx()
     while True:
         random_column = random.randint(1, max_x)
-        settings.coroutines.append(
+        shared.coroutines.append(
             space_garbage.fly_garbage(
                 canvas,
                 column=random_column,
@@ -30,4 +31,4 @@ async def fill_orbit_with_garbage(canvas):
             )
         )
 
-        await sleep.sleep(game_scenario.get_garbage_delay_tics(settings.year) or 1)
+        await sleep.sleep(game_scenario.get_garbage_delay_tics(shared.year) or 1)

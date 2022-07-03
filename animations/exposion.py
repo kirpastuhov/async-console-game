@@ -34,7 +34,7 @@ EXPLOSION_FRAMES = [
 ]
 
 
-async def explode(canvas, center_row, center_column):
+async def explode(canvas: curses.window, center_row: int, center_column: int):
     rows, columns = curses_tools.get_frame_size(EXPLOSION_FRAMES[0])
     corner_row = center_row - rows / 2
     corner_column = center_column - columns / 2
